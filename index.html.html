@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>极聘 AI - 全能商务计算器</title>
+    <style>
+        :root { --main-bg: #FFFFFF; --text-color: #333; --accent-blue: #007AFF; --accent-yellow: #FFD700; --btn-gray: #F2F2F7; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica; background: var(--btn-gray); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        
+        .calculator { background: var(--main-bg); width: 340px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden; padding: 20px; border: 1px solid #eee; }
+        
+        /* 显示屏区 - 简约大气 */
+        #display { width: 100%; height: 80px; font-size: 48px; text-align: right; border: none; outline: none; background: transparent; color: var(--text-color); margin-bottom: 20px; padding-right: 10px; box-sizing: border-box; }
+        
+        /* 按键网格 */
+        .buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        
+        button { border: none; outline: none; height: 65px; border-radius: 50px; font-size: 24px; font-weight: bold; cursor: pointer; transition: 0.2s; -webkit-tap-highlight-color: transparent; }
+        
+        /* 数字键 */
+        .btn-num { background: var(--btn-gray); color: var(--text-color); }
+        .btn-num:active { background: #E5E5EA; }
+        
+        /* 操作符键 - 使用极聘AI蓝色 */
+        .btn-op { background: var(--accent-blue); color: #fff; }
+        .btn-op:active { background: #0066CC; }
+        
+        /* 功能键 - 使用点缀黄 */
+        .btn-func { background: #E5E5EA; color: var(--text-color); font-size: 20px; }
+        .btn-func:active { background: #D1D1D6; }
+        
+        /* 等于号 - 醒目 yellow */
+        .btn-eq { background: var(--accent-yellow); color: #111; grid-column: span 2; width: 100%; }
+        .btn-eq:active { background: #E6C300; }
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <input type="text" id="display" readonly>
+    <div class="buttons">
+        <button class="btn-func" onclick="clearDisplay()">AC</button>
+        <button class="btn-func" onclick="handlePercentage()">%</button>
+        <button class="btn-func" onclick="handleDel()">DEL</button>
+        <button class="btn-op" onclick="appendOp('/')">÷</button>
+        
+        <button class="btn-num" onclick="appendNum('7')">7</button>
+        <button class="btn-num" onclick="appendNum('8')">8</button>
+        <button class="btn-num" onclick="appendNum('9')">9</button>
+        <button class="btn-op" onclick="appendOp('*')">×</button>
+        
+        <button class="btn-num" onclick="appendNum('4')">4</button>
+        <button class="btn-num" onclick="appendNum('5')">5</button>
+        <button class="btn-num" onclick="appendNum('6')">6</button>
+        <button class="btn-op" onclick="appendOp('-')">-</button>
+        
+        <button class="btn-num" onclick="appendNum('1')">1</button>
+        <button class="btn-num" onclick="appendNum('2')">2</button>
+        <button class="btn-num" onclick="appendNum('3')">3</button>
+        <button class="btn-op" onclick="appendOp('+')">+</button>
+        
+        <button class="btn-num" onclick="appendNum('0')">0</button>
+        <button class="btn-num" onclick="appendNum('.')">.</button>
+        <button class="btn-eq" onclick="calculate()">=</button>
+    </div>
+</div>
+
+<script>
+    const display = document.getElementById('display');
+    let currentInput = '';
+    let operator = null;
+    let prevInput = '';
+
+    // 输入数字
+    function appendNum(num) {
+        if (num === '.' && currentInput.includes('.')) return; // 防止重复小数点
+        if (currentInput.length >= 10) return; // 限制长度
+        currentInput += num;
+        display.value = currentInput;
+    }
+
+    // 清除
+    function clearDisplay() {
+        currentInput = '';
+        prevInput = '';
+        operator = null;
+        display.value = '';
+    }
+
+    // 删除一位
+    function handleDel() {
+        currentInput = currentInput.slice(0, -1);
+        display.value = currentInput;
+    }
+
+    // 百分比
+    function handlePercentage() {
+        if (!currentInput) return;
+        currentInput = (parseFloat(currentInput) / 100).toString();
+        display.value = currentInput;
+    }
+
+    // 输入操作符
+    function appendOp(op) {
+        if (!currentInput) return;
+        if (prevInput !== '') {
+            calculate();
+        }
+        operator = op;
+        prevInput = currentInput;
+        currentInput = '';
+    }
+
+    // 计算结果
+    function calculate() {
+        if (!currentInput || !prevInput || !operator) return;
+        let result;
+        const prev = parseFloat(prevInput);
+        const current = parseFloat(currentInput);
+
+        switch (operator) {
+            case '+': result = prev + current; break;
+            case '-': result = prev - current; break;
+            case '*': result = prev * current; break;
+            case '/': 
+                if (current === 0) {
+                    alert("错误：不能除以零");
+                    clearDisplay();
+                    return;
+                }
+                result = prev / current; 
+                break;
+            default: return;
+        }
+
+        currentInput = result.toString();
+        operator = null;
+        prevInput = '';
+        display.value = currentInput;
+    }
+</script>
+
+</body>
+</html>
